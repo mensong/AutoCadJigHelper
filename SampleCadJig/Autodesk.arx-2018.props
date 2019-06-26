@@ -12,7 +12,7 @@
 		<AcadDir Condition="'$(Platform)'=='Win32'">D:\Program Files\Autodesk\AutoCAD 2018\</AcadDir>
 		<AcadExe Condition="'$(ArxAppType)'=='dbx' or '$(ArxAppType)'=='dbxnet' or '$(ArxAppType)'=='arx' or '$(ArxAppType)'=='arxnet'">acad.exe</AcadExe>
 		<AcadExe Condition="'$(ArxAppType)'=='crx' or '$(ArxAppType)'=='crxnet'">accoreconsole.exe</AcadExe>
-		<ArxSdkDir>D:\ObjectARX_2018\</ArxSdkDir>
+		<ArxSdkDir>D:\ObjectARX 2018\</ArxSdkDir>
 
 		<ArxSdkIncs Condition="'$(Platform)'=='Win32'">$(ArxSdkDir)\inc;$(ArxSdkDir)\inc-win32</ArxSdkIncs>
 		<ArxSdkIncs Condition="'$(Platform)'=='x64'">$(ArxSdkDir)\inc;$(ArxSdkDir)\inc-x64</ArxSdkIncs>

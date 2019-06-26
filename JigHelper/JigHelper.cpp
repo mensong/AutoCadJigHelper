@@ -2,18 +2,18 @@
 #include "JigHelper.h"
 #include <AcString.h>
 
-CJigHelper::CJigHelper()
+JigHelper::JigHelper()
 	:m_bPat(false)
 	, m_bCanecl(false)
 {
-	SetUpdateClassFunc(CJigHelper::UpdateJig, this, this);
+	SetUpdateClassFunc(JigHelper::UpdateJig, this, this);
 }
 
-CJigHelper::~CJigHelper(void)
+JigHelper::~JigHelper(void)
 {
 }
 
-Adesk::Boolean CALLBACK CJigHelper::UpdateJig(class CJigHelper *pJigHelper, const AcGePoint3d &posCur, const AcGePoint3d &posLast)
+Adesk::Boolean CALLBACK JigHelper::UpdateJig(class JigHelper *pJigHelper, const AcGePoint3d &posCur, const AcGePoint3d &posLast)
 {
 	//1 确定矩阵
 	AcGeVector3d vecMove = posCur - posLast;
@@ -29,7 +29,7 @@ Adesk::Boolean CALLBACK CJigHelper::UpdateJig(class CJigHelper *pJigHelper, cons
 	return Adesk::kTrue;
 }
 
-AcEdJig::DragStatus CJigHelper::sampler()
+AcEdJig::DragStatus JigHelper::sampler()
 {
 	if (m_bCanecl)
 	{
@@ -75,7 +75,7 @@ AcEdJig::DragStatus CJigHelper::sampler()
 	return (status);
 }
 
-Adesk::Boolean CJigHelper::update()
+Adesk::Boolean JigHelper::update()
 {
 	Adesk::Boolean bRes = Adesk::kFalse;
 	if (m_funcUpdateJig)
@@ -87,17 +87,17 @@ Adesk::Boolean CJigHelper::update()
 	return bRes;
 }
 
-AcDbEntity *CJigHelper::entity() const
+AcDbEntity *JigHelper::entity() const
 {
 	return (AcDbEntity *)&m_DumyJigEnt;
 }
 
-void CJigHelper::RegisterAsJigEntity(AcDbEntity *pEnt)
+void JigHelper::RegisterAsJigEntity(AcDbEntity *pEnt)
 {
 	m_DumyJigEnt.addEntity(pEnt);
 }
 
-void CJigHelper::RegisterAsJigEntity(std::vector<AcDbEntity *> &vctEnts)
+void JigHelper::RegisterAsJigEntity(std::vector<AcDbEntity *> &vctEnts)
 {
 	int nSize = vctEnts.size();
 	for (int i = 0; i < nSize; ++i)
@@ -106,7 +106,7 @@ void CJigHelper::RegisterAsJigEntity(std::vector<AcDbEntity *> &vctEnts)
 	}
 }
 
-CJigHelper::RESULT CJigHelper::startJig()
+JigHelper::RESULT JigHelper::startJig()
 {
 	acedGetAcadDwgView()->SetFocus();
 
@@ -118,12 +118,12 @@ CJigHelper::RESULT CJigHelper::startJig()
 
 	if (acdbCurDwg() != pDbOld)
 	{//在jig的过程中切换了DWG
-		return CJigHelper::RET_STOP;
+		return JigHelper::RET_STOP;
 	}
 	else if (kNormal == status)
 	{//选取点
 		if (m_str[0] == '\0')
-			return CJigHelper::RET_POINT;
+			return JigHelper::RET_POINT;
 
 		//把字符串转为点
 		ACHAR szAxis[3][30];		
@@ -143,13 +143,13 @@ CJigHelper::RESULT CJigHelper::startJig()
 			}
 			else
 			{
-				return CJigHelper::RET_STRING;
+				return JigHelper::RET_STRING;
 			}
 		}
 		szAxis[nDim++][nIdx] = '\0';
 
 		if (nDim < 2 || nDim > 3)
-			return CJigHelper::RET_STRING;
+			return JigHelper::RET_STRING;
 
 		if (nDim == 2)
 			m_posCur.z = 0;
@@ -163,22 +163,22 @@ CJigHelper::RESULT CJigHelper::startJig()
 				m_posCur.z = _ttof(szAxis[i]);
 		}
 
-		return CJigHelper::RET_POINT;
+		return JigHelper::RET_POINT;
 	}
 	else if (kOther == status)
 	{//输入字符串
-		return CJigHelper::RET_STRING;
+		return JigHelper::RET_STRING;
 	}
 
-	return CJigHelper::RET_CANCEL;
+	return JigHelper::RET_CANCEL;
 }
 
-void CJigHelper::UnregisterJigEntity(AcDbEntity *pEnt)
+void JigHelper::UnregisterJigEntity(AcDbEntity *pEnt)
 {
 	m_DumyJigEnt.remove(pEnt);
 }
 
-void CJigHelper::UnregisterJigEntity(std::vector<AcDbEntity *> &vctEnts)
+void JigHelper::UnregisterJigEntity(std::vector<AcDbEntity *> &vctEnts)
 {
 	int nSize = vctEnts.size();
 	for (int i = 0; i < nSize; ++i)
@@ -187,24 +187,24 @@ void CJigHelper::UnregisterJigEntity(std::vector<AcDbEntity *> &vctEnts)
 	}
 }
 
-void CJigHelper::UnregisterAllJigEntity()
+void JigHelper::UnregisterAllJigEntity()
 {
 	m_DumyJigEnt.removeAll();
 }
 
-void CJigHelper::SetUpdateJigFunc(FUNC_UPDATE_JIG pFunc)
+void JigHelper::SetUpdateJigFunc(FUNC_UPDATE_JIG pFunc)
 {
 	m_funcUpdateJig = pFunc;
 }
 
-void CJigHelper::SetBasePoint(const AcGePoint3d &ptOrigin)
+void JigHelper::SetBasePoint(const AcGePoint3d &ptOrigin)
 {
 	m_posLast = ptOrigin;
 	m_posBase = ptOrigin;
 }
 
 //设置是否正交极轴
-void CJigHelper::SetPat(bool bPat)
+void JigHelper::SetPat(bool bPat)
 {
 	m_bPat = bPat;
 }

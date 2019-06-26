@@ -226,6 +226,7 @@ public:
 	static AcDbLine* pLineRight;
 	static Adesk::Boolean UpdateJigHalfway(class JigHelper *pJigHelper, const AcGePoint3d &posCur, const AcGePoint3d &posLast)
 	{
+		//注册jig实体
 		if (posLast.x * posCur.x < 0 || //跨区域则重新注册图形实体
 			pJigHelper->GetJigEntity()->getEntityCount() < 1//第一次进入
 			)
