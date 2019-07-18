@@ -222,8 +222,12 @@ public:
 	///////////////////////////////////////////////////////////////////////
 
 	////////////////////演示如何在Update函数中改变实体/////////////////////
+	//实体不需要加入数据库
+	static AcDbXline *pBreakLine;
 	static AcDbLine* pLineLeft;
 	static AcDbLine* pLineRight;
+	static AcDbText* pTextLeft;
+	static AcDbText* pTextRight;
 	static Adesk::Boolean UpdateJigHalfway(class JigHelper *pJigHelper, const AcGePoint3d &posCur, const AcGePoint3d &posLast)
 	{
 		//注册jig实体
@@ -236,13 +240,17 @@ public:
 			if (posCur.x < 0)
 			{//左边
 				pJigHelper->RegisterAsJigEntity(pLineLeft);
+				pJigHelper->RegisterAsJigEntity(pTextLeft);
 				pJigHelper->setDispPrompt(_T("在左边\n"));
 			}
 			else if (posCur.x > 0)
 			{//右边
 				pJigHelper->RegisterAsJigEntity(pLineRight);
+				pJigHelper->RegisterAsJigEntity(pTextRight);
 				pJigHelper->setDispPrompt(_T("在右边\n"));
 			}
+
+			pJigHelper->RegisterAsJigEntity(pBreakLine);
 		}
 		
 		if (posCur.x < 0)
@@ -250,13 +258,20 @@ public:
 			AcDbLine* pLine = (AcDbLine*)pJigHelper->GetJigEntity()->getEnity(0);
 			pLine->setStartPoint(AcGePoint3d(-1000, posCur.y, 0));
 			pLine->setEndPoint(AcGePoint3d(0, posCur.y, 0));
-			
+			pTextLeft->setPosition(AcGePoint3d(-1000, posCur.y, 0));
+			AcString s;
+			s.format(_T("Y:%.2f"), posCur.y);
+			pTextLeft->setTextString(s);
 		}
 		else if (posCur.x > 0)
 		{
 			AcDbLine* pLine = (AcDbLine*)pJigHelper->GetJigEntity()->getEnity(0);
-			pLine->setStartPoint(AcGePoint3d(1000, posCur.y, 0));
-			pLine->setEndPoint(AcGePoint3d(0, posCur.y, 0));
+			pLine->setStartPoint(AcGePoint3d(0, posCur.y, 0));
+			pLine->setEndPoint(AcGePoint3d(1000, posCur.y, 0));
+			pTextRight->setPosition(AcGePoint3d(1000, posCur.y, 0));
+			AcString s;
+			s.format(_T("Y:%.2f"), posCur.y);
+			pTextRight->setTextString(s);
 		}
 
 		return Adesk::kTrue;
@@ -264,33 +279,38 @@ public:
 
 	static void MyGroupJigHalfway()
 	{
-		AcDbXline *pBreakLine = new AcDbXline;
+		pBreakLine = new AcDbXline;
 		pBreakLine->setBasePoint(AcGePoint3d(0, 0, 0));
 		pBreakLine->setUnitDir(AcGeVector3d(0, 1, 0));
-		AcDbObjectId id1;
-		AppendToDatabase(id1, pBreakLine);
-		pBreakLine->close();
 		
 		pLineLeft = new AcDbLine;
-		AcDbObjectId id2;
-		AppendToDatabase(id2, pLineLeft);
 		pLineRight = new AcDbLine;
-		AcDbObjectId id3;
-		AppendToDatabase(id3, pLineRight);
-		
+
+		pTextLeft = new AcDbText;
+		pTextLeft->setHeight(100);
+
+		pTextRight = new AcDbText;
+		pTextRight->setHeight(100);
+
 		JigHelper jig;
 		jig.SetBasePoint(AcGePoint3d(0, 0, 0));
 		SetUpdateFunc(CSampleCadJigApp::UpdateJigHalfway, &jig);
 		jig.startJig();
 
-		pLineLeft->close();
-		pLineRight->close();
+		delete pBreakLine;
+		delete pLineLeft;
+		delete pLineRight;
+		delete pTextLeft;
+		delete pTextRight;
+		
 	}
 	///////////////////////////////////////////////////////////////////////
 } ;
-
+AcDbXline* CSampleCadJigApp::pBreakLine = NULL;
 AcDbLine* CSampleCadJigApp::pLineLeft = NULL;
 AcDbLine* CSampleCadJigApp::pLineRight = NULL;
+AcDbText* CSampleCadJigApp::pTextLeft = NULL;
+AcDbText* CSampleCadJigApp::pTextRight = NULL;
 
 //-----------------------------------------------------------------------------
 IMPLEMENT_ARX_ENTRYPOINT(CSampleCadJigApp)
