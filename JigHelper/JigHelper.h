@@ -12,24 +12,24 @@
 #include "SDBDumyJigEntity.h"
 
  //更新jig实体函数原型
-typedef Adesk::Boolean (*pfnUpdateJig)(class JigHelper *pJigHelper, const AcGePoint3d &posCur, const AcGePoint3d &posLast);
+typedef Adesk::Boolean (*pfnUpdateJig)(class CJigHelper *pJigHelper, const AcGePoint3d &posCur, const AcGePoint3d &posLast);
 
 //函数存储结构
-#define FUNC_UPDATE_JIG std::function<Adesk::Boolean(class JigHelper *pJigHelper, const AcGePoint3d &posCur, const AcGePoint3d &posLast)>
+#define FUNC_UPDATE_JIG std::function<Adesk::Boolean(class CJigHelper *pJigHelper, const AcGePoint3d &posCur, const AcGePoint3d &posLast)>
 
 /**
- * @class   CJigCom
+ * @class   CJigHelper
  * @brief   简易通用jig帮助类
  * @author  Gergul
  * @date    2018/10/29
  * Note:    
  */
-class JigHelper :
+class CJigHelper :
 	public AcEdJig
 {
 public:
-	JigHelper(void);
-	virtual ~JigHelper(void);
+	CJigHelper(void);
+	virtual ~CJigHelper(void);
 
 public:
 	/**
@@ -72,6 +72,14 @@ public:
 	 * Note:    
 	 */
 	void SetBasePoint(const AcGePoint3d &ptOrigin);
+
+	/**
+	 * @brief   取消设置jig基点
+	 * @author  Gergul
+	 * @date    2018/10/29
+	 * Note:    配合pat使用
+	 */
+	void UnSetBasePoint();
 	
 	/**
 	* @brief   获得基点
@@ -151,7 +159,7 @@ public:
 	 * @return  在jig过程中所操作的结果
 	 * Note:    
 	 */
-	JigHelper::RESULT startJig();
+	CJigHelper::RESULT startJig();
 
 	/**
 	 * @brief   获得字符串
@@ -199,7 +207,7 @@ protected:
 	 * @return  
 	 * Note:    
 	 */
-	Adesk::Boolean CALLBACK UpdateJig(class JigHelper *pJigHelper, const AcGePoint3d &posCur, const AcGePoint3d &posLast);
+	Adesk::Boolean CALLBACK UpdateJig(class CJigHelper *pJigHelper, const AcGePoint3d &posCur, const AcGePoint3d &posLast);
 
 protected:
 	//- AcEdJig overrides
@@ -215,7 +223,10 @@ protected:
 	CSDBDumyJigEntity m_DumyJigEnt;
 
 	AcGePoint3d m_posLast;//前一个位置
+
 	AcGePoint3d m_posCur;//当前位置
+
+	bool m_bHasSetBasePos;//是否已经设置了基点
 	AcGePoint3d m_posBase;//基点
 
 	ACHAR m_str[2049];	//接受结果的字符串
