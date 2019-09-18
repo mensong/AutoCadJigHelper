@@ -56,4 +56,5 @@ public:
 
 //#ifdef SDENTITY_MODULE
 ACDB_REGISTER_OBJECT_ENTRY_AUTO(CSDBDumyJigEntity)
+	//acrxClassDictionary
 //#endif

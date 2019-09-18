@@ -135,12 +135,12 @@ public:
 		}
 		AcGePoint3d ptBase = extsAll.minPoint();
 
-		JigHelper jig;
+		CJigHelper jig;
 		jig.setDispPrompt(_T("请选择放置点："));
 		jig.SetBasePoint(ptBase);
 		jig.RegisterAsJigEntity(vctJigEnt);
-		JigHelper::RESULT ec = jig.startJig();
-		if (ec != JigHelper::RET_POINT)
+		CJigHelper::RESULT ec = jig.startJig();
+		if (ec != CJigHelper::RET_POINT)
 		{
 			//无效输入则撤销
 			AcGeVector3d vec = jig.GetBasePoint() - jig.GetPosition();
@@ -159,7 +159,7 @@ public:
 	///////////////////////////////////////////////////////////////////////
 
 	//////////////////////////演示一个箭头的Jig////////////////////////////
-	static Adesk::Boolean UpdateJigArrow(class JigHelper *pJigHelper, const AcGePoint3d &posCur, const AcGePoint3d &posLast)
+	static Adesk::Boolean UpdateJigArrow(class CJigHelper *pJigHelper, const AcGePoint3d &posCur, const AcGePoint3d &posLast, void* pUserData)
 	{
 		CSDBDumyJigEntity* pJigEntity = pJigHelper->GetJigEntity();
 		AcDbLine* pLinePole = (AcDbLine*)pJigEntity->getEnity(0);
@@ -198,17 +198,17 @@ public:
 		AcDbObjectId idRight;
 		AppendToDatabase(idRight, pLineRight);
 
-		JigHelper jig;
+		CJigHelper jig;
 		jig.setDispPrompt(_T("选择箭头终点："));
 		AcGePoint3d ptBase(0, 0, 0);
 		jig.SetBasePoint(ptBase);
 		jig.RegisterAsJigEntity(pLinePole);
 		jig.RegisterAsJigEntity(pLineLeft);
 		jig.RegisterAsJigEntity(pLineRight);
-		SetUpdateFunc(CSampleCadJigApp::UpdateJigArrow, &jig);
+		SetUpdateFunc(CSampleCadJigApp::UpdateJigArrow, &jig, NULL);
 
-		JigHelper::RESULT res = jig.startJig();
-		if (res != JigHelper::RET_POINT)
+		CJigHelper::RESULT res = jig.startJig();
+		if (res != CJigHelper::RET_POINT)
 		{//不是以点结束则删除箭头
 			pLinePole->erase();
 			pLineLeft->erase();
@@ -228,7 +228,7 @@ public:
 	static AcDbLine* pLineRight;
 	static AcDbText* pTextLeft;
 	static AcDbText* pTextRight;
-	static Adesk::Boolean UpdateJigHalfway(class JigHelper *pJigHelper, const AcGePoint3d &posCur, const AcGePoint3d &posLast)
+	static Adesk::Boolean UpdateJigHalfway(class CJigHelper *pJigHelper, const AcGePoint3d &posCur, const AcGePoint3d &posLast, void* pUserData)
 	{
 		//注册jig实体
 		if (posLast.x * posCur.x < 0 || //跨区域则重新注册图形实体
@@ -292,9 +292,9 @@ public:
 		pTextRight = new AcDbText;
 		pTextRight->setHeight(100);
 
-		JigHelper jig;
+		CJigHelper jig;
 		jig.SetBasePoint(AcGePoint3d(0, 0, 0));
-		SetUpdateFunc(CSampleCadJigApp::UpdateJigHalfway, &jig);
+		SetUpdateFunc(CSampleCadJigApp::UpdateJigHalfway, &jig, NULL);
 		jig.startJig();
 
 		delete pBreakLine;

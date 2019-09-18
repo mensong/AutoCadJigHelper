@@ -2,15 +2,67 @@
 #include "SDBDumyJigEntity.h"
 
 //-----------------------------------------------------------------------------
-ACRX_DXF_DEFINE_MEMBERS(
-	CSDBDumyJigEntity, AcDbArc,
-	AcDb::kDHL_CURRENT, AcDb::kMReleaseCurrent,
-	AcDbProxyEntity::kNoOperation, SDBDUMYJIGENTITY,
-	GERGULDBXENTITYAPP
-	| Product Desc : A description for your object
-	| Company : Gergul
-	| WEB Address : Your company WEB site address
-)
+//ACRX_DXF_DEFINE_MEMBERS(
+//	CSDBDumyJigEntity, AcDbArc,
+//	AcDb::kDHL_CURRENT, AcDb::kMReleaseCurrent,
+//	AcDbProxyEntity::kNoOperation, BDumyJigEntity,
+//	BDumyJigEntityAPP
+//	| Product Desc : A description for your object
+//	| Company : Gergul
+//	| WEB Address : Your company WEB site address
+//)
+
+AcRxClass* CSDBDumyJigEntity::desc()
+{
+	if (CSDBDumyJigEntity::gpDesc != NULL) 
+		return CSDBDumyJigEntity::gpDesc; 
+	return CSDBDumyJigEntity::gpDesc 
+		= (AcRxClass*)((AcRxDictionary*)acrxSysRegistry() 
+		->at(ACRX_CLASS_DICTIONARY))->at(ACRX_T("CSDBDumyJigEntity")); 
+}
+
+AcRxClass* CSDBDumyJigEntity::isA() const 
+{ 
+	if (CSDBDumyJigEntity::gpDesc != NULL) 
+		return CSDBDumyJigEntity::gpDesc; 
+	return CSDBDumyJigEntity::gpDesc 
+		= (AcRxClass*)((AcRxDictionary*)acrxSysRegistry() 
+		->at(ACRX_CLASS_DICTIONARY))->at(ACRX_T("CSDBDumyJigEntity")); 
+} 
+AcRxClass* CSDBDumyJigEntity::gpDesc = NULL;
+
+static AcRxObject * makeCSDBDumyJigEntity() { return new CSDBDumyJigEntity(); }
+void CSDBDumyJigEntity::rxInit() 
+{
+	AcRxClass *pClass =
+		(AcRxClass*)((AcRxDictionary*)acrxSysRegistry()
+		->at(ACRX_CLASS_DICTIONARY))->at(ACRX_T("CSDBDumyJigEntity"));
+	if (pClass)
+	{//已经注册过，防止重复注册引起的崩溃
+		return;
+	}
+
+	ACRX_STATIC_CHECK(CSDBDumyJigEntity);
+	
+	CSDBDumyJigEntity::gpDesc = newAcRxClass(ACRX_T("CSDBDumyJigEntity"), ACRX_T("AcDbEntity"),
+		AcDb::kDHL_CURRENT, AcDb::kMReleaseCurrent, AcDbProxyEntity::kNoOperation,
+		&makeCSDBDumyJigEntity, ACRX_T("BDumyJigEntity"), ACRX_T("Gergul"));
+} 
+void CSDBDumyJigEntity::rxInit(AppNameChangeFuncPtr ptr) 
+{
+	AcRxClass *pClass =
+		(AcRxClass*)((AcRxDictionary*)acrxSysRegistry()
+		->at(ACRX_CLASS_DICTIONARY))->at(ACRX_T("CSDBDumyJigEntity"));
+	if (pClass)
+	{//已经注册过，防止重复注册引起的崩溃
+		return;
+	}
+
+	ACRX_STATIC_CHECK(CSDBDumyJigEntity); 
+	CSDBDumyJigEntity::gpDesc = newAcRxClass(ACRX_T("CSDBDumyJigEntity"), ACRX_T("AcDbEntity"), 
+		AcDb::kDHL_CURRENT, AcDb::kMReleaseCurrent, AcDbProxyEntity::kNoOperation, 
+		&makeCSDBDumyJigEntity, ACRX_T("BDumyJigEntity"), ACRX_T("Gergul"), ptr); \
+}
 
 //-----------------------------------------------------------------------------
 

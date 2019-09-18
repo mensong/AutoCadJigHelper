@@ -11,11 +11,16 @@
 #include <vector>
 #include "SDBDumyJigEntity.h"
 
- //更新jig实体函数原型
-typedef Adesk::Boolean (*pfnUpdateJig)(class CJigHelper *pJigHelper, const AcGePoint3d &posCur, const AcGePoint3d &posLast);
+#if _MSC_VER > 1500 //是否是VS2008（不包括VS2008）以上的版本
+#define CPP11
+#endif
 
-//函数存储结构
-#define FUNC_UPDATE_JIG std::function<Adesk::Boolean(class CJigHelper *pJigHelper, const AcGePoint3d &posCur, const AcGePoint3d &posLast)>
+ //更新jig实体函数原型
+#ifdef CPP11
+#define FUNC_UPDATE_JIG std::function<Adesk::Boolean(class CJigHelper *pJigHelper, const AcGePoint3d &posCur, const AcGePoint3d &posLast, void* pUserData)>
+#else
+typedef Adesk::Boolean (*FUNC_UPDATE_JIG)(class CJigHelper *pJigHelper, const AcGePoint3d &posCur, const AcGePoint3d &posLast, void* pUserData);
+#endif
 
 /**
  * @class   CJigHelper
@@ -39,8 +44,9 @@ public:
 	 * @date    2018/10/29
 	 * Note:    
 	 */
-	void SetUpdateJigFunc(FUNC_UPDATE_JIG pFunc);
+	void SetUpdateJigFunc(FUNC_UPDATE_JIG pFunc, void* pUserData);
 
+#ifdef CPP11
 	/**
 	 * @brief   把类成员函数设置为jig的Update函数
 	 * @param   ClassFunc - 类成员函数。例如：CClass::UpdateJig
@@ -50,8 +56,10 @@ public:
 	 * @date    2018/10/29
 	 * Note:    此宏为辅助SetUpdateJigFunc函数使用
 	 */
-#define SetUpdateClassFunc(ClassFunc, pClassObj, pJigHelper) \
-	(pJigHelper)->SetUpdateJigFunc(std::bind(&ClassFunc, (pClassObj), std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+#define SetUpdateClassFunc(ClassFunc, pClassObj, pJigHelper, pUserData) \
+	(pJigHelper)->SetUpdateJigFunc(std::bind(&ClassFunc, (pClassObj), \
+	std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4), \
+	pUserData);
 
 	 /**
 	  * @brief   把非类成员函数或类静态成员函数设置为jig的Update函数
@@ -61,8 +69,17 @@ public:
 	  * @date    2018/10/29
 	  * Note:    此宏为辅助SetUpdateJigFunc函数使用
 	  */
-#define SetUpdateFunc(GeneralFunc, pJigHelper) \
-	(pJigHelper)->SetUpdateJigFunc(std::bind(&GeneralFunc, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+#define SetUpdateFunc(GeneralFunc, pJigHelper, pUserData) \
+	(pJigHelper)->SetUpdateJigFunc(std::bind(&GeneralFunc, \
+	std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4), \
+	pUserData);
+
+#else
+
+#define SetUpdateFunc(GeneralFunc, pJigHelper, pUserData) \
+	(pJigHelper)->SetUpdateJigFunc(GeneralFunc, pUserData);
+
+#endif
 
 	/**
 	 * @brief   设置jig基点
@@ -207,7 +224,7 @@ protected:
 	 * @return  
 	 * Note:    
 	 */
-	Adesk::Boolean CALLBACK UpdateJig(class CJigHelper *pJigHelper, const AcGePoint3d &posCur, const AcGePoint3d &posLast);
+	static Adesk::Boolean CALLBACK UpdateJig(class CJigHelper *pJigHelper, const AcGePoint3d &posCur, const AcGePoint3d &posLast, void* pUserData);
 
 protected:
 	//- AcEdJig overrides
@@ -232,6 +249,8 @@ protected:
 	ACHAR m_str[2049];	//接受结果的字符串
 
 	FUNC_UPDATE_JIG m_funcUpdateJig;//更新jig实体函数
+
+	void* m_pUserData;
 
 	bool m_bPat;	//是否正交极轴
 	bool m_bCanecl;	//用户是否终止

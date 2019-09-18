@@ -1,27 +1,41 @@
 #include "StdAfx.h"
 #include "JigHelper.h"
 #include <AcString.h>
+#include <tchar.h>
+
+#ifndef _ttof
+#ifdef UNICODE
+#define _ttof _wtof
+#else
+#define _ttof atof
+#endif
+#endif
 
 CJigHelper::CJigHelper()
 	:m_bPat(false)
 	, m_bCanecl(false)
 	, m_bHasSetBasePos(false)
+	, m_pUserData(NULL)
 {
-	SetUpdateClassFunc(CJigHelper::UpdateJig, this, this);
+	SetUpdateFunc(CJigHelper::UpdateJig, this, this);
 }
 
 CJigHelper::~CJigHelper(void)
 {
 }
 
-Adesk::Boolean CALLBACK CJigHelper::UpdateJig(class CJigHelper *pJigHelper, const AcGePoint3d &posCur, const AcGePoint3d &posLast)
+Adesk::Boolean CALLBACK CJigHelper::UpdateJig(class CJigHelper *pJigHelper, const AcGePoint3d &posCur, const AcGePoint3d &posLast, void* pUserData)
 {
+	CJigHelper* pThis = (CJigHelper*)pUserData;
+	if (!pThis)
+		return Adesk::kFalse;
+
 	//1 确定矩阵
 	AcGeVector3d vecMove = posCur - posLast;
 	//2 更新位置
-	for (int i = 0; i < m_DumyJigEnt.m_entArray.length(); i++)
+	for (int i = 0; i < pThis->m_DumyJigEnt.m_entArray.length(); i++)
 	{
-		AcDbEntity* pEnt = m_DumyJigEnt.getEnity(i);
+		AcDbEntity* pEnt = pThis->m_DumyJigEnt.getEnity(i);
 		if (NULL == pEnt) 
 			continue;
 		pEnt->transformBy(vecMove);
@@ -81,7 +95,7 @@ Adesk::Boolean CJigHelper::update()
 	Adesk::Boolean bRes = Adesk::kFalse;
 	if (m_funcUpdateJig)
 	{
-		bRes = m_funcUpdateJig(this, m_posCur, m_posLast);
+		bRes = m_funcUpdateJig(this, m_posCur, m_posLast, m_pUserData);
 	}
 	m_posLast = m_posCur;
 
@@ -100,7 +114,7 @@ void CJigHelper::RegisterAsJigEntity(AcDbEntity *pEnt)
 
 void CJigHelper::RegisterAsJigEntity(std::vector<AcDbEntity *> &vctEnts)
 {
-	int nSize = vctEnts.size();
+	int nSize = (int)vctEnts.size();
 	for (int i = 0; i < nSize; ++i)
 	{
 		this->RegisterAsJigEntity(vctEnts[i]);
@@ -130,7 +144,7 @@ CJigHelper::RESULT CJigHelper::startJig()
 		ACHAR szAxis[3][30];		
 		int nDim = 0;
 		int nIdx = 0;
-		int nLen = _tcslen(m_str);
+		int nLen = (int)_tcslen(m_str);
 		for (int i = 0; i < nLen; ++i)
 		{
 			if (('0' <= m_str[i] && '9' >= m_str[i]) || m_str[i] == '.')
@@ -181,7 +195,7 @@ void CJigHelper::UnregisterJigEntity(AcDbEntity *pEnt)
 
 void CJigHelper::UnregisterJigEntity(std::vector<AcDbEntity *> &vctEnts)
 {
-	int nSize = vctEnts.size();
+	int nSize = (int)vctEnts.size();
 	for (int i = 0; i < nSize; ++i)
 	{
 		this->UnregisterJigEntity(vctEnts[i]);
@@ -193,9 +207,10 @@ void CJigHelper::UnregisterAllJigEntity()
 	m_DumyJigEnt.removeAll();
 }
 
-void CJigHelper::SetUpdateJigFunc(FUNC_UPDATE_JIG pFunc)
+void CJigHelper::SetUpdateJigFunc(FUNC_UPDATE_JIG pFunc, void* pUserData)
 {
 	m_funcUpdateJig = pFunc;
+	m_pUserData = pUserData;
 }
 
 void CJigHelper::SetBasePoint(const AcGePoint3d &ptOrigin)
